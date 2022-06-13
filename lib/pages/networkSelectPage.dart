@@ -1,8 +1,7 @@
 import 'package:app/common/components/jumpToLink.dart';
 import 'package:app/common/consts.dart';
 import 'package:app/common/types/pluginDisabled.dart';
-import 'package:app/pages/account/create/createAccountPage.dart';
-import 'package:app/pages/account/import/selectImportTypePage.dart';
+import 'package:app/pages/account/accountTypeSelectPage.dart';
 import 'package:app/service/index.dart';
 import 'package:app/utils/Utils.dart';
 import 'package:app/utils/i18n/index.dart';
@@ -94,8 +93,8 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
     if (!isCurrentNetwork) {
       await _reloadNetwork();
     }
-    Navigator.of(context).pushNamed(
-        step == 0 ? CreateAccountPage.route : SelectImportTypePage.route);
+    Navigator.of(context)
+        .pushNamed(AccountTypeSelectPage.route, arguments: step);
   }
 
   List<Widget> _buildAccountList() {
