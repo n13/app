@@ -643,8 +643,15 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                         _queryPluginsConfig();
                       }
                       return snapshot.data > 0
-                          ? HomePage(_service, widget.plugins, _connectedNode,
-                              _checkJSCodeUpdate, _switchNetwork, _changeNode)
+                          ? HomePage(
+                              _service,
+                              widget.plugins,
+                              _connectedNode,
+                              _checkJSCodeUpdate,
+                              _switchNetwork,
+                              _changeNode,
+                              widget.disabledPlugins,
+                              _changeNetwork)
                           : CreateAccountEntryPage(_service.plugin);
                     } else {
                       return Container(color: Theme.of(context).hoverColor);

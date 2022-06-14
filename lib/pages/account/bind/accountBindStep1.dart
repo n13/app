@@ -2,7 +2,6 @@ import 'package:app/pages/account/bind/accountBindEntryPage.dart';
 import 'package:app/service/index.dart';
 import 'package:app/utils/i18n/index.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/v3/addressFormItem.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';

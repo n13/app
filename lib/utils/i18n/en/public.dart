@@ -123,4 +123,6 @@ const Map<String, String> enPublic = {
   'hub.browser.clearMessage':
       'Are you sure you want to delete the item from browsing history?',
   'hub.browser.searchingHistory': 'Searching History',
+  'hub.cover.evm':
+      'A simple tool to bing your Substrate and EVM addresses enjoy the two different constructional ecosystems in Polkawallet.'
 };

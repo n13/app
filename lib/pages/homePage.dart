@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:app/common/consts.dart';
+import 'package:app/common/types/pluginDisabled.dart';
 import 'package:app/pages/account/bind/accountBindPage.dart';
 import 'package:app/pages/assets/index.dart';
 import 'package:app/pages/browser/browserPage.dart';
@@ -27,8 +28,15 @@ import 'package:polkawallet_ui/components/v3/plugin/pluginItemCard.dart';
 import 'package:polkawallet_ui/ui.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage(this.service, this.plugins, this.connectedNode,
-      this.checkJSCodeUpdate, this.switchNetwork, this.changeNode);
+  HomePage(
+      this.service,
+      this.plugins,
+      this.connectedNode,
+      this.checkJSCodeUpdate,
+      this.switchNetwork,
+      this.changeNode,
+      this.disabledPlugins,
+      this.changeNetwork);
 
   final AppService service;
   final NetworkParams connectedNode;
@@ -39,6 +47,8 @@ class HomePage extends StatefulWidget {
 
   final List<PolkawalletPlugin> plugins;
   final Future<void> Function(NetworkParams) changeNode;
+  final List<PluginDisabled> disabledPlugins;
+  final Future<void> Function(PolkawalletPlugin) changeNetwork;
 
   static final String route = '/';
 
@@ -223,11 +233,11 @@ class _HomePageState extends State<HomePage> {
                 child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Image.asset('assets/images/public/hub_browser.png'),
+                  Image.asset('assets/images/public/hub_evm.png'),
                   Container(
                     padding: EdgeInsets.only(top: 16),
                     child: Text(
-                      "EVM",
+                      dic['hub.cover.evm'],
                       textAlign: TextAlign.justify,
                       style: Theme.of(context)
                           .textTheme
@@ -352,10 +362,7 @@ class _HomePageState extends State<HomePage> {
                 (PolkawalletPlugin plugin) async {
           _setupWssNotifyTimer();
           widget.checkJSCodeUpdate(context, plugin);
-        }, (String name, {NetworkParams node}) async {
-          _setupWssNotifyTimer();
-          widget.switchNetwork(name, node: node);
-        }, _handleWalletConnect),
+        }, widget.disabledPlugins, widget.changeNetwork, _handleWalletConnect),
         // content: Container(),
       )
     ];

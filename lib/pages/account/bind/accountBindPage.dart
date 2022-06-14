@@ -1,11 +1,10 @@
 import 'package:app/pages/account/bind/accountBindStep1.dart';
 import 'package:app/pages/account/bind/accountBindStep2.dart';
-import 'package:app/pages/assets/nodeSelectPage.dart';
+import 'package:app/pages/account/bind/accountBindStep3.dart';
 import 'package:app/service/index.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_ui/components/v3/back.dart';
 import 'package:polkawallet_ui/components/v3/button.dart';
-import 'package:polkawallet_ui/utils/format.dart';
 
 class AccountBindPage extends StatefulWidget {
   AccountBindPage(this.service, {Key key}) : super(key: key);
@@ -111,11 +110,10 @@ class _AccountBindPageState extends State<AccountBindPage> {
                                 width: 144,
                                 child: Button(
                                     child: Padding(
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 4),
+                                  padding: EdgeInsets.fromLTRB(10, 1, 10, 0),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Padding(
                                         child: Text(
@@ -126,18 +124,28 @@ class _AccountBindPageState extends State<AccountBindPage> {
                                               ?.copyWith(
                                                   fontSize: 36,
                                                   fontWeight: FontWeight.w900,
-                                                  height: 1.3),
+                                                  height: 1.0),
                                         ),
-                                        padding: EdgeInsets.only(right: 5),
+                                        padding:
+                                            EdgeInsets.only(right: 5, top: 2),
                                       ),
                                       Expanded(
-                                          child: Text(
-                                        "Binding EVM/substrate account",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .button
-                                            ?.copyWith(fontSize: 12),
-                                      ))
+                                          child: Padding(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 5),
+                                              child: Text(
+                                                index == 0
+                                                    ? "Binding EVM/substrate account"
+                                                    : index == 1
+                                                        ? "Create Claim signature"
+                                                        : "Claim account",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .button
+                                                    ?.copyWith(
+                                                        fontSize: 12,
+                                                        height: 1.2),
+                                              )))
                                     ],
                                   ),
                                 )),
@@ -181,14 +189,18 @@ class _AccountBindPageState extends State<AccountBindPage> {
                     ),
                   ),
                   Expanded(
-                      child: AccountBindStep1(widget.service, () {
-                    setState(() {
-                      _step = _step + 1;
-                      if (_step == 1) {
-                        showStep2();
-                      }
-                    });
-                  }))
+                      child: _step == 2
+                          ? AccountBindStep3(widget.service, () {
+                              Navigator.of(context).pop();
+                            })
+                          : AccountBindStep1(widget.service, () {
+                              setState(() {
+                                _step = _step + 1;
+                                if (_step == 1) {
+                                  showStep2();
+                                }
+                              });
+                            }))
                 ],
               ),
             )));

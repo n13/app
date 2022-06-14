@@ -110,4 +110,5 @@ const Map<String, String> zhPublic = {
   'hub.browser.clearAllMessage': '您确定要清除所有浏览历史记录吗？您以后无法恢复。',
   'hub.browser.clearMessage': '您确定要从浏览历史记录中删除该项吗?',
   'hub.browser.searchingHistory': '搜索历史',
+  'hub.cover.evm': '一个简单的工具，使您的Substrate和EVM地址享受Polkawallet中的两种不同的构造生态系统。'
 };
