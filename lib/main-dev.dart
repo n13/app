@@ -1,6 +1,7 @@
 import 'package:app/app.dart';
 import 'package:app/common/consts.dart';
 import 'package:app/common/types/pluginDisabled.dart';
+import 'package:app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,9 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
   await GetStorage.init(get_storage_container);
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   final plugins = [
     PluginKusama(name: 'polkadot'),
@@ -37,12 +40,7 @@ void main() async {
   ];
 
   runApp(WalletApp(
-      plugins,
-      [
-        PluginDisabled(
-            'chainx', Image.asset('assets/images/public/chainx_gray.png'))
-      ],
-      BuildTargets.dev));
+      plugins, [PluginDisabled('chainx', Image.asset('assets/images/public/chainx_gray.png'))], BuildTargets.dev));
   //   FlutterBugly.init(
   //     androidAppId: "64c2d01918",
   //     iOSAppId: "3803dd717e",

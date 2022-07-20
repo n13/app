@@ -65,13 +65,11 @@ class _TransferPageState extends State<TransferPage> {
   bool _submitting = false;
 
   Future<String> _checkBlackList(KeyPairData acc) async {
-    final addresses = await widget.service.plugin.sdk.api.account
-        .decodeAddress([acc.address]);
+    final addresses = await widget.service.plugin.sdk.api.account.decodeAddress([acc.address]);
     if (addresses != null) {
       final pubKey = addresses.keys.toList()[0];
       if (widget.service.plugin.sdk.blackList.indexOf(pubKey) > -1) {
-        return I18n.of(context)
-            .getDic(i18n_full_dic_app, 'account')['bad.scam'];
+        return I18n.of(context).getDic(i18n_full_dic_app, 'account')['bad.scam'];
       }
     }
     return null;
@@ -81,21 +79,16 @@ class _TransferPageState extends State<TransferPage> {
     final blackListCheck = await _checkBlackList(acc);
     if (blackListCheck != null) return blackListCheck;
 
-    if (widget.service.keyring.allAccounts
-            .indexWhere((e) => e.pubKey == acc.pubKey) >=
-        0) {
+    if (widget.service.keyring.allAccounts.indexWhere((e) => e.pubKey == acc.pubKey) >= 0) {
       return null;
     }
 
     final addressCheckValid = await widget.service.plugin.sdk.webView
-        .evalJavascript('(account.checkAddressFormat != undefined ? {}:null)',
-            wrapPromise: false);
+        .evalJavascript('(account.checkAddressFormat != undefined ? {}:null)', wrapPromise: false);
     if (addressCheckValid != null) {
-      final res = await widget.service.plugin.sdk.api.account
-          .checkAddressFormat(acc.address, _chainTo.basic.ss58);
+      final res = await widget.service.plugin.sdk.api.account.checkAddressFormat(acc.address, _chainTo.basic.ss58);
       if (res != null && !res) {
-        return I18n.of(context)
-            .getDic(i18n_full_dic_ui, 'account')['ss58.mismatch'];
+        return I18n.of(context).getDic(i18n_full_dic_ui, 'account')['ss58.mismatch'];
       }
     }
     return null;
@@ -109,8 +102,7 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<void> _onScan() async {
-    final to =
-        (await Navigator.of(context).pushNamed(ScanPage.route) as QRCodeResult);
+    final to = (await Navigator.of(context).pushNamed(ScanPage.route) as QRCodeResult);
     if (to == null) return;
 
     _updateAccountTo(to.address.address, name: to.address.name);
@@ -131,8 +123,7 @@ class _TransferPageState extends State<TransferPage> {
   TxConfirmParams _getDotAcalaBridgeTxParams() {
     final dic = I18n.of(context).getDic(i18n_full_dic_app, 'assets');
     final symbol = (widget.service.plugin.networkState.tokenSymbol ?? [''])[0];
-    final decimals =
-        (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
+    final decimals = (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
 
     return TxConfirmParams(
       txTitle: '${dic['transfer']} $symbol (${dic['cross.chain']})',
@@ -169,22 +160,17 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<TxConfirmParams> _getTxParams() async {
-    if (_accountToError == null &&
-        _formKey.currentState.validate() &&
-        !_submitting) {
+    if (_accountToError == null && _formKey.currentState.validate() && !_submitting) {
       final dic = I18n.of(context).getDic(i18n_full_dic_app, 'assets');
-      final symbol =
-          (widget.service.plugin.networkState.tokenSymbol ?? [''])[0];
-      final decimals =
-          (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
+      final symbol = (widget.service.plugin.networkState.tokenSymbol ?? [''])[0];
+      final decimals = (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
 
       /// send XCM tx if cross chain
       if (_chainTo.basic.name != widget.service.plugin.basic.name) {
         final isFromXTokensParaChain = _isFromXTokensParaChain();
         final isToParaChain = _isToParaChain();
 
-        final isToParent = _chainTo.basic.name == relay_chain_name_ksm ||
-            _chainTo.basic.name == relay_chain_name_dot;
+        final isToParent = _chainTo.basic.name == relay_chain_name_ksm || _chainTo.basic.name == relay_chain_name_dot;
 
         final txModule = isToParent
             ? 'polkadotXcm'
@@ -197,8 +183,7 @@ class _TransferPageState extends State<TransferPage> {
                 : 'reserveTransferAssets'
             : 'limitedTeleportAssets';
 
-        final amount =
-            Fmt.tokenInt(_amountCtrl.text.trim(), decimals).toString();
+        final amount = Fmt.tokenInt(_amountCtrl.text.trim(), decimals).toString();
 
         String destPubKey = _accountTo.pubKey;
         // we need to decode address for the pubKey here
@@ -206,8 +191,7 @@ class _TransferPageState extends State<TransferPage> {
           setState(() {
             _submitting = true;
           });
-          final pk = await widget.service.plugin.sdk.api.account
-              .decodeAddress([_accountTo.address]);
+          final pk = await widget.service.plugin.sdk.api.account.decodeAddress([_accountTo.address]);
           setState(() {
             _submitting = false;
           });
@@ -242,9 +226,7 @@ class _TransferPageState extends State<TransferPage> {
           /// this is KSM/DOT transfer RelayChain <-> ParaChain
           /// paramsX: [dest, beneficiary, assets, dest_weight]
           final dest = {
-            'X1': isToParent
-                ? 'Parent'
-                : {'Parachain': _chainTo.basic.parachainId}
+            'X1': isToParent ? 'Parent' : {'Parachain': _chainTo.basic.parachainId}
           };
           final beneficiary = {
             'X1': {
@@ -356,14 +338,10 @@ class _TransferPageState extends State<TransferPage> {
       txParams = await _getTxParams();
     }
 
-    final txInfo = TxInfoData(
-        txParams.module,
-        txParams.call,
-        TxSenderData(widget.service.keyring.current.address,
-            widget.service.keyring.current.pubKey));
+    final txInfo = TxInfoData(txParams.module, txParams.call,
+        TxSenderData(widget.service.keyring.current.address, widget.service.keyring.current.pubKey));
 
-    final fee = await widget.service.plugin.sdk.api.tx
-        .estimateFees(txInfo, txParams.params);
+    final fee = await widget.service.plugin.sdk.api.tx.estimateFees(txInfo, txParams.params);
     if (mounted) {
       setState(() {
         _fee = fee;
@@ -381,8 +359,7 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<void> _setMaxAmount(BigInt available, BigInt existAmount) async {
-    final decimals =
-        (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
+    final decimals = (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
     final fee = await _getTxFee();
     // keep 1.2 * amount of estimated fee left
     final max = available -
@@ -391,9 +368,7 @@ class _TransferPageState extends State<TransferPage> {
         (_keepAlive ? existAmount : BigInt.zero);
     if (mounted) {
       setState(() {
-        _amountCtrl.text = max > BigInt.zero
-            ? Fmt.bigIntToDouble(max, decimals).toStringAsFixed(8)
-            : '0';
+        _amountCtrl.text = max > BigInt.zero ? Fmt.bigIntToDouble(max, decimals).toStringAsFixed(8) : '0';
       });
     }
   }
@@ -408,7 +383,7 @@ class _TransferPageState extends State<TransferPage> {
       _accountTo = acc;
     });
 
-    final res = await Future.wait([
+    final List<dynamic> res = await Future.wait([
       widget.service.plugin.sdk.api.account.getAddressIcons([acc.address]),
       _checkAccountTo(acc),
     ]);
@@ -440,9 +415,7 @@ class _TransferPageState extends State<TransferPage> {
 
     final allPlugins = widget.service.allPlugins.toList();
     allPlugins.retainWhere((e) {
-      return [widget.service.plugin.basic.name, ..._xcmEnabledChains]
-              .indexOf(e.basic.name) >
-          -1;
+      return [widget.service.plugin.basic.name, ..._xcmEnabledChains].indexOf(e.basic.name) > -1;
     });
 
     showCupertinoModalPopup(
@@ -474,8 +447,7 @@ class _TransferPageState extends State<TransferPage> {
                 // from AddressInputField
                 widget.service.keyring.setSS58(e.basic.ss58);
                 final options = widget.service.keyring.allWithContacts.toList();
-                widget.service.keyring
-                    .setSS58(widget.service.plugin.basic.ss58);
+                widget.service.keyring.setSS58(widget.service.plugin.basic.ss58);
                 setState(() {
                   _chainTo = e;
                   _accountOptions = options;
@@ -489,9 +461,7 @@ class _TransferPageState extends State<TransferPage> {
 
                 if (_amountCtrl.text.trim().toString().length > 0) {
                   // update estimated tx fee if switch ToChain
-                  _getTxFee(
-                      isXCM: e.basic.name != relay_chain_name_ksm,
-                      reload: true);
+                  _getTxFee(isXCM: e.basic.name != relay_chain_name_ksm, reload: true);
                 }
               }
               Navigator.of(context).pop();
@@ -499,8 +469,7 @@ class _TransferPageState extends State<TransferPage> {
           );
         }).toList(),
         cancelButton: CupertinoActionSheetAction(
-          child: Text(
-              I18n.of(context).getDic(i18n_full_dic_ui, 'common')['cancel']),
+          child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['cancel']),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -544,13 +513,11 @@ class _TransferPageState extends State<TransferPage> {
             content: Text(dic['note.msg1']),
             actions: <Widget>[
               CupertinoButton(
-                child: Text(I18n.of(context)
-                    .getDic(i18n_full_dic_ui, 'common')['cancel']),
+                child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['cancel']),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               CupertinoButton(
-                child: Text(
-                    I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok']),
+                child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok']),
                 onPressed: () {
                   Navigator.of(context).pop();
 
@@ -563,8 +530,7 @@ class _TransferPageState extends State<TransferPage> {
                           content: Text(dic['note.msg2']),
                           actions: <Widget>[
                             CupertinoButton(
-                              child: Text(I18n.of(context)
-                                  .getDic(i18n_full_dic_ui, 'common')['ok']),
+                              child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok']),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
@@ -605,8 +571,8 @@ class _TransferPageState extends State<TransferPage> {
         });
       }
 
-      final xcmEnabledChains = await widget.service.store.settings
-          .getXcmEnabledChains(widget.service.plugin.basic.name);
+      final xcmEnabledChains =
+          await widget.service.store.settings.getXcmEnabledChains(widget.service.plugin.basic.name);
       setState(() {
         _accountOptions = widget.service.keyring.allWithContacts.toList();
         _xcmEnabledChains = xcmEnabledChains;
@@ -614,8 +580,7 @@ class _TransferPageState extends State<TransferPage> {
         if (args?.chainTo != null) {
           final chainToIndex = xcmEnabledChains.indexOf(args.chainTo);
           if (chainToIndex > -1) {
-            _chainTo = widget.service.allPlugins
-                .firstWhere((e) => e.basic.name == args.chainTo);
+            _chainTo = widget.service.allPlugins.firstWhere((e) => e.basic.name == args.chainTo);
             _accountTo = widget.service.keyring.current;
             return;
           }
@@ -636,42 +601,28 @@ class _TransferPageState extends State<TransferPage> {
     return Observer(
       builder: (_) {
         final dic = I18n.of(context).getDic(i18n_full_dic_app, 'assets');
-        final symbol =
-            (widget.service.plugin.networkState.tokenSymbol ?? [''])[0];
-        final decimals =
-            (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
+        final symbol = (widget.service.plugin.networkState.tokenSymbol ?? [''])[0];
+        final decimals = (widget.service.plugin.networkState.tokenDecimals ?? [12])[0];
 
         final connected = widget.service.plugin.sdk.api.connectedNode != null;
 
-        final available = Fmt.balanceInt(
-            (widget.service.plugin.balances.native?.availableBalance ?? 0)
-                .toString());
-        final notTransferable = Fmt.balanceInt(
-                (widget.service.plugin.balances.native?.reservedBalance ?? 0)
-                    .toString()) +
-            Fmt.balanceInt(
-                (widget.service.plugin.balances.native?.lockedBalance ?? 0)
-                    .toString());
+        final available = Fmt.balanceInt((widget.service.plugin.balances.native?.availableBalance ?? 0).toString());
+        final notTransferable =
+            Fmt.balanceInt((widget.service.plugin.balances.native?.reservedBalance ?? 0).toString()) +
+                Fmt.balanceInt((widget.service.plugin.balances.native?.lockedBalance ?? 0).toString());
 
-        final canCrossChain =
-            _xcmEnabledChains != null && _xcmEnabledChains.length > 0;
+        final canCrossChain = _xcmEnabledChains != null && _xcmEnabledChains.length > 0;
 
         final destChainName = _chainTo?.basic?.name ?? 'karura';
         final isCrossChain = widget.service.plugin.basic.name != destChainName;
 
         final existDeposit = Fmt.balanceInt(
-            ((widget.service.plugin.networkConst['balances'] ??
-                        {})['existentialDeposit'] ??
-                    0)
-                .toString());
+            ((widget.service.plugin.networkConst['balances'] ?? {})['existentialDeposit'] ?? 0).toString());
         final existAmount = _getExistAmount(notTransferable, existDeposit);
 
-        final destExistDeposit = isCrossChain
-            ? Fmt.balanceInt(xcm_send_fees[destChainName]['existentialDeposit'])
-            : BigInt.zero;
-        final destFee = isCrossChain
-            ? Fmt.balanceInt(xcm_send_fees[destChainName]['fee'])
-            : BigInt.zero;
+        final destExistDeposit =
+            isCrossChain ? Fmt.balanceInt(xcm_send_fees[destChainName]['existentialDeposit']) : BigInt.zero;
+        final destFee = isCrossChain ? Fmt.balanceInt(xcm_send_fees[destChainName]['fee']) : BigInt.zero;
 
         final colorGrey = Theme.of(context).unselectedWidgetColor;
 
@@ -705,221 +656,156 @@ class _TransferPageState extends State<TransferPage> {
                       children: [
                         Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(dic['from'], style: labelStyle),
-                                  AddressFormItem(
-                                      widget.service.keyring.current),
-                                  Container(height: 8.h),
-                                  Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AddressTextFormField(
-                                          widget.service.plugin.sdk.api,
-                                          _accountOptions,
-                                          labelText: dic['cross.to'],
-                                          labelStyle: labelStyle,
-                                          hintText: dic['address'],
-                                          initialValue: _accountTo,
-                                          onChanged: (KeyPairData acc) async {
-                                            final accValid =
-                                                await _checkAccountTo(acc);
-                                            setState(() {
-                                              _accountTo = acc;
-                                              _accountToError = accValid;
-                                            });
-                                          },
-                                          key:
-                                              ValueKey<KeyPairData>(_accountTo),
-                                        ),
-                                        Visibility(
-                                            visible: _accountToError != null,
-                                            child: Container(
-                                              margin: EdgeInsets.only(top: 4),
-                                              child: Text(_accountToError ?? "",
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .caption
-                                                      .copyWith(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .errorColor)),
-                                            )),
-                                        Container(height: 10.h),
-                                        v3.TextInputWidget(
-                                          autovalidateMode: AutovalidateMode
-                                              .onUserInteraction,
-                                          decoration: v3.InputDecorationV3(
-                                            hintText: dic['amount.hint'],
-                                            labelText:
-                                                '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
-                                              available,
-                                              decimals,
-                                              lengthMax: 6,
-                                            )})',
-                                            labelStyle: labelStyle,
-                                            suffix: GestureDetector(
-                                              child: Text(dic['amount.max'],
-                                                  style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .primaryColor)),
-                                              onTap: () => _setMaxAmount(
-                                                  available, existAmount),
-                                            ),
-                                          ),
-                                          inputFormatters: [
-                                            UI.decimalInputFormatter(decimals)
-                                          ],
-                                          controller: _amountCtrl,
-                                          keyboardType:
-                                              TextInputType.numberWithOptions(
-                                                  decimal: true),
-                                          validator: (v) {
-                                            final error =
-                                                Fmt.validatePrice(v, context);
-                                            if (error != null) {
-                                              return error;
-                                            }
-                                            final input =
-                                                Fmt.tokenInt(v, decimals);
-                                            final feeLeft = available -
-                                                input -
-                                                (_keepAlive
-                                                    ? existAmount
-                                                    : BigInt.zero);
-                                            BigInt fee = BigInt.zero;
-                                            if (feeLeft <
-                                                    Fmt.tokenInt(
-                                                        '0.02', decimals) &&
-                                                _fee?.partialFee != null) {
-                                              fee = Fmt.balanceInt(
-                                                  _fee.partialFee.toString());
-                                            }
-                                            if (feeLeft - fee < BigInt.zero) {
-                                              return dic['amount.low'];
-                                            }
-                                            return null;
-                                          },
-                                        )
-                                      ],
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              Text(dic['from'], style: labelStyle),
+                              AddressFormItem(widget.service.keyring.current),
+                              Container(height: 8.h),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AddressTextFormField(
+                                      widget.service.plugin.sdk.api,
+                                      _accountOptions,
+                                      labelText: dic['cross.to'],
+                                      labelStyle: labelStyle,
+                                      hintText: dic['address'],
+                                      initialValue: _accountTo,
+                                      onChanged: (KeyPairData acc) async {
+                                        final accValid = await _checkAccountTo(acc);
+                                        setState(() {
+                                          _accountTo = acc;
+                                          _accountToError = accValid;
+                                        });
+                                      },
+                                      key: ValueKey<KeyPairData>(_accountTo),
                                     ),
-                                  ),
-                                  Padding(
-                                      padding: EdgeInsets.only(
-                                          top: 20.h, bottom: 7.h),
-                                      child: Divider(height: 1)),
-                                  Visibility(
-                                      visible: canCrossChain,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: 4),
-                                            child: Text(
-                                              dic['to.chain'],
-                                              style: labelStyle,
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            child: RoundedCard(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 9.h,
-                                                  horizontal: 16.w),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                    Visibility(
+                                        visible: _accountToError != null,
+                                        child: Container(
+                                          margin: EdgeInsets.only(top: 4),
+                                          child: Text(_accountToError ?? "",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .caption
+                                                  .copyWith(color: Theme.of(context).errorColor)),
+                                        )),
+                                    Container(height: 10.h),
+                                    v3.TextInputWidget(
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                      decoration: v3.InputDecorationV3(
+                                        hintText: dic['amount.hint'],
+                                        labelText: '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
+                                          available,
+                                          decimals,
+                                          lengthMax: 6,
+                                        )})',
+                                        labelStyle: labelStyle,
+                                        suffix: GestureDetector(
+                                          child: Text(dic['amount.max'],
+                                              style: TextStyle(color: Theme.of(context).primaryColor)),
+                                          onTap: () => _setMaxAmount(available, existAmount),
+                                        ),
+                                      ),
+                                      inputFormatters: [UI.decimalInputFormatter(decimals)],
+                                      controller: _amountCtrl,
+                                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                      validator: (v) {
+                                        final error = Fmt.validatePrice(v, context);
+                                        if (error != null) {
+                                          return error;
+                                        }
+                                        final input = Fmt.tokenInt(v, decimals);
+                                        final feeLeft = available - input - (_keepAlive ? existAmount : BigInt.zero);
+                                        BigInt fee = BigInt.zero;
+                                        if (feeLeft < Fmt.tokenInt('0.02', decimals) && _fee?.partialFee != null) {
+                                          fee = Fmt.balanceInt(_fee.partialFee.toString());
+                                        }
+                                        if (feeLeft - fee < BigInt.zero) {
+                                          return dic['amount.low'];
+                                        }
+                                        return null;
+                                      },
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Padding(padding: EdgeInsets.only(top: 20.h, bottom: 7.h), child: Divider(height: 1)),
+                              Visibility(
+                                  visible: canCrossChain,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(bottom: 4),
+                                        child: Text(
+                                          dic['to.chain'],
+                                          style: labelStyle,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        child: RoundedCard(
+                                          padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 16.w),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Row(
                                                 children: <Widget>[
-                                                  Row(
-                                                    children: <Widget>[
-                                                      Container(
-                                                        margin: EdgeInsets.only(
-                                                            right: 8),
-                                                        width: 32,
-                                                        height: 32,
-                                                        child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(32),
-                                                          child: _chainTo
-                                                              ?.basic?.icon,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                          destChainName
-                                                              .toUpperCase(),
-                                                          style:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .headline4)
-                                                    ],
+                                                  Container(
+                                                    margin: EdgeInsets.only(right: 8),
+                                                    width: 32,
+                                                    height: 32,
+                                                    child: ClipRRect(
+                                                      borderRadius: BorderRadius.circular(32),
+                                                      child: _chainTo?.basic?.icon,
+                                                    ),
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      Visibility(
-                                                          visible: isCrossChain,
-                                                          child: Container(
-                                                            padding: EdgeInsets
-                                                                .fromLTRB(15.w,
-                                                                    0, 15.w, 4),
-                                                            height: 24,
-                                                            margin:
-                                                                EdgeInsets.only(
-                                                                    right: 8),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .transparent,
-                                                              image: DecorationImage(
-                                                                  image: AssetImage(
-                                                                      "assets/images/icon_bg_2.png"),
-                                                                  fit: BoxFit
-                                                                      .contain),
-                                                            ),
-                                                            alignment: Alignment
-                                                                .center,
-                                                            child: Text(
-                                                              dic['cross.chain'],
-                                                              style: TextStyle(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .cardColor,
-                                                                fontSize: polkawallet_ui
-                                                                    .UI
-                                                                    .getTextSize(
-                                                                        12,
-                                                                        context),
-                                                                fontFamily: polkawallet_ui
-                                                                    .UI
-                                                                    .getFontFamily(
-                                                                        'TitilliumWeb',
-                                                                        context),
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                              ),
-                                                            ),
-                                                          )),
-                                                      Icon(
-                                                        Icons.arrow_forward_ios,
-                                                        size: 18,
-                                                        color: colorGrey,
-                                                      )
-                                                    ],
-                                                  )
+                                                  Text(destChainName.toUpperCase(),
+                                                      style: Theme.of(context).textTheme.headline4)
                                                 ],
                                               ),
-                                            ),
-                                            onTap: _onSelectChain,
+                                              Row(
+                                                children: [
+                                                  Visibility(
+                                                      visible: isCrossChain,
+                                                      child: Container(
+                                                        padding: EdgeInsets.fromLTRB(15.w, 0, 15.w, 4),
+                                                        height: 24,
+                                                        margin: EdgeInsets.only(right: 8),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.transparent,
+                                                          image: DecorationImage(
+                                                              image: AssetImage("assets/images/icon_bg_2.png"),
+                                                              fit: BoxFit.contain),
+                                                        ),
+                                                        alignment: Alignment.center,
+                                                        child: Text(
+                                                          dic['cross.chain'],
+                                                          style: TextStyle(
+                                                            color: Theme.of(context).cardColor,
+                                                            fontSize: polkawallet_ui.UI.getTextSize(12, context),
+                                                            fontFamily: polkawallet_ui.UI
+                                                                .getFontFamily('TitilliumWeb', context),
+                                                            fontWeight: FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      )),
+                                                  Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    size: 18,
+                                                    color: colorGrey,
+                                                  )
+                                                ],
+                                              )
+                                            ],
                                           ),
-                                        ],
-                                      ))
-                                ])),
+                                        ),
+                                        onTap: _onSelectChain,
+                                      ),
+                                    ],
+                                  ))
+                            ])),
                         RoundedCard(
                           margin: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
                           padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
@@ -934,30 +820,19 @@ class _TransferPageState extends State<TransferPage> {
                                       children: [
                                         Expanded(
                                           child: Container(
-                                              padding:
-                                                  EdgeInsets.only(right: 40),
+                                              padding: EdgeInsets.only(right: 40),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(dic['cross.exist'],
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline4),
+                                                      style: Theme.of(context).textTheme.headline4),
                                                   Text(
                                                     dic['amount.exist.msg'],
                                                     style: TextStyle(
                                                       color: Color(0xBF565554),
-                                                      fontSize: polkawallet_ui
-                                                          .UI
-                                                          .getTextSize(
-                                                              12, context),
-                                                      fontFamily: polkawallet_ui
-                                                          .UI
-                                                          .getFontFamily(
-                                                              'SF_Pro',
-                                                              context),
+                                                      fontSize: polkawallet_ui.UI.getTextSize(12, context),
+                                                      fontFamily: polkawallet_ui.UI.getFontFamily('SF_Pro', context),
                                                     ),
                                                   ),
                                                 ],
@@ -970,9 +845,7 @@ class _TransferPageState extends State<TransferPage> {
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .headline5
-                                                    .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w600))),
+                                                    .copyWith(fontWeight: FontWeight.w600))),
                                       ],
                                     ),
                                   )),
@@ -986,20 +859,14 @@ class _TransferPageState extends State<TransferPage> {
                                         Expanded(
                                           child: Padding(
                                             padding: EdgeInsets.only(right: 4),
-                                            child: Text(dic['cross.fee'],
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline4),
+                                            child: Text(dic['cross.fee'], style: Theme.of(context).textTheme.headline4),
                                           ),
                                         ),
-                                        Text(
-                                            '${Fmt.priceCeilBigInt(destFee, decimals, lengthMax: 6)} $symbol',
+                                        Text('${Fmt.priceCeilBigInt(destFee, decimals, lengthMax: 6)} $symbol',
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
-                                                .copyWith(
-                                                    fontWeight:
-                                                        FontWeight.w600)),
+                                                .copyWith(fontWeight: FontWeight.w600)),
                                       ],
                                     ),
                                   )),
@@ -1013,32 +880,23 @@ class _TransferPageState extends State<TransferPage> {
                                           padding: EdgeInsets.only(right: 60),
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(dic['amount.exist'],
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline4),
+                                              Text(dic['amount.exist'], style: Theme.of(context).textTheme.headline4),
                                               Text(
                                                 dic['amount.exist.msg'],
                                                 style: TextStyle(
-                                                    fontSize: polkawallet_ui.UI
-                                                        .getTextSize(
-                                                            12, context),
-                                                    fontWeight:
-                                                        FontWeight.w200),
+                                                    fontSize: polkawallet_ui.UI.getTextSize(12, context),
+                                                    fontWeight: FontWeight.w200),
                                               ),
                                             ],
                                           )),
                                     ),
-                                    Text(
-                                        '${Fmt.priceCeilBigInt(existDeposit, decimals, lengthMax: 6)} $symbol',
+                                    Text('${Fmt.priceCeilBigInt(existDeposit, decimals, lengthMax: 6)} $symbol',
                                         style: Theme.of(context)
                                             .textTheme
                                             .headline5
-                                            .copyWith(
-                                                fontWeight: FontWeight.w600)),
+                                            .copyWith(fontWeight: FontWeight.w600)),
                                   ],
                                 ),
                               ),
@@ -1052,10 +910,8 @@ class _TransferPageState extends State<TransferPage> {
                                         Expanded(
                                           child: Padding(
                                             padding: EdgeInsets.only(right: 4),
-                                            child: Text(dic['amount.fee'],
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline4),
+                                            child:
+                                                Text(dic['amount.fee'], style: Theme.of(context).textTheme.headline4),
                                           ),
                                         ),
                                         Text(
@@ -1063,9 +919,7 @@ class _TransferPageState extends State<TransferPage> {
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .headline5
-                                                .copyWith(
-                                                    fontWeight:
-                                                        FontWeight.w600)),
+                                                .copyWith(fontWeight: FontWeight.w600)),
                                       ],
                                     ),
                                   )),
@@ -1079,22 +933,15 @@ class _TransferPageState extends State<TransferPage> {
                                           padding: EdgeInsets.only(right: 60),
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(dic['transfer.alive'],
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline4),
+                                              Text(dic['transfer.alive'], style: Theme.of(context).textTheme.headline4),
                                               Text(
                                                 dic['transfer.alive.msg'],
                                                 style: TextStyle(
                                                   color: Color(0xBF565554),
-                                                  fontSize: polkawallet_ui.UI
-                                                      .getTextSize(12, context),
-                                                  fontFamily: polkawallet_ui.UI
-                                                      .getFontFamily(
-                                                          'SF_Pro', context),
+                                                  fontSize: polkawallet_ui.UI.getTextSize(12, context),
+                                                  fontFamily: polkawallet_ui.UI.getFontFamily('SF_Pro', context),
                                                 ),
                                               ),
                                             ],
@@ -1104,8 +951,7 @@ class _TransferPageState extends State<TransferPage> {
                                       value: _keepAlive,
                                       // account is not allow_death if it has
                                       // locked/reserved balances
-                                      onChanged: (v) => _onSwitchCheckAlive(
-                                          v, notTransferable),
+                                      onChanged: (v) => _onSwitchCheckAlive(v, notTransferable),
                                     )
                                   ],
                                 ),

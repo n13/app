@@ -37,8 +37,7 @@ class RecoverySettingPage extends StatefulWidget {
 }
 
 class _RecoverySettingPage extends State<RecoverySettingPage> {
-  final GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshKey = new GlobalKey<RefreshIndicatorState>();
 
   List<TxData> _activeRecoveries = [];
   List _activeRecoveriesStatus = [];
@@ -47,8 +46,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
 
   Future<void> _fetchData() async {
     /// fetch recovery config
-    final config = await widget.service.account
-        .queryRecoverable(widget.service.keyring.current.pubKey);
+    final config = await widget.service.account.queryRecoverable(widget.service.keyring.current.pubKey);
     if (config == null) {
       print('no recoverable config');
       return;
@@ -60,15 +58,12 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
       call: 'initiate_recovery',
       sender: widget.service.keyring.current.address,
     );
-    List<TxData> txs = List.of(res['extrinsics'] ?? [])
-        .map((e) => TxData.fromJson(e))
-        .toList();
+    List<TxData> txs = List.of(res['extrinsics'] ?? []).map((e) => TxData.fromJson(e)).toList();
     List pubKeys = [];
     txs.retainWhere((e) {
       if (!e.success) return false;
       List params = jsonDecode(e.params);
-      String pubKey =
-          params[0]['valueRaw'] ?? params[0]['value_raw'] ?? params[0]['value'];
+      String pubKey = params[0]['valueRaw'] ?? params[0]['value_raw'] ?? params[0]['value'];
       if (pubKeys.contains(pubKey)) {
         return false;
       } else {
@@ -80,13 +75,11 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
       List<String> addressesNew = txs.map((e) => e.accountId).toList();
 
       /// fetch active recovery status
-      final status = await Future.wait([
-        widget.service.plugin.sdk.webView
-            .evalJavascript('api.derive.chain.bestNumber()'),
-        widget.service.plugin.sdk.api.recovery.queryActiveRecoveryAttempts(
-            widget.service.keyring.current.address, addressesNew),
+      final List<dynamic> status = await Future.wait([
+        widget.service.plugin.sdk.webView.evalJavascript('api.derive.chain.bestNumber()'),
         widget.service.plugin.sdk.api.recovery
-            .queryRecoveryProxies(addressesNew),
+            .queryActiveRecoveryAttempts(widget.service.keyring.current.address, addressesNew),
+        widget.service.plugin.sdk.api.recovery.queryRecoveryProxies(addressesNew),
       ]);
       setState(() {
         _activeRecoveries = txs;
@@ -111,8 +104,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
             content: Text(dic['recovery.remove.warn']),
             actions: <Widget>[
               CupertinoButton(
-                child: Text(
-                    I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok']),
+                child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok']),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -123,13 +115,8 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
       );
     } else {
       final args = TxConfirmParams(
-          txTitle: dic['recovery.remove'],
-          module: 'recovery',
-          call: 'removeRecovery',
-          txDisplay: {},
-          params: []);
-      final res = await Navigator.of(context)
-          .pushNamed(TxConfirmPage.route, arguments: args);
+          txTitle: dic['recovery.remove'], module: 'recovery', call: 'removeRecovery', txDisplay: {}, params: []);
+      final res = await Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
       if (res != null) {
         _refreshKey.currentState.show();
       }
@@ -144,8 +131,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
         call: 'closeRecovery',
         txDisplay: {"rescuer": tx.accountId},
         params: [tx.accountId]);
-    final res = await Navigator.of(context)
-        .pushNamed(TxConfirmPage.route, arguments: args);
+    final res = await Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
     if (res != null) {
       _refreshKey.currentState.show();
     }
@@ -163,14 +149,12 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_app, 'profile');
     return Scaffold(
-      appBar: AppBar(
-          title: Text(dic['recovery']), centerTitle: true, leading: BackBtn()),
+      appBar: AppBar(title: Text(dic['recovery']), centerTitle: true, leading: BackBtn()),
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final isKSMOrDOT =
-                widget.service.plugin.basic.name == relay_chain_name_ksm ||
-                    widget.service.plugin.basic.name == relay_chain_name_dot;
+            final isKSMOrDOT = widget.service.plugin.basic.name == relay_chain_name_ksm ||
+                widget.service.plugin.basic.name == relay_chain_name_dot;
             final symbol = isKSMOrDOT
                 ? widget.service.plugin.networkState.tokenSymbol[0]
                 : widget.service.plugin.networkState.tokenSymbol ?? '';
@@ -182,8 +166,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
             final friends = <KeyPairData>[];
             if (info.friends != null) {
               friends.addAll(info.friends.map((e) {
-                int friendIndex = widget.service.keyring.contacts
-                    .indexWhere((c) => c.address == e);
+                int friendIndex = widget.service.keyring.contacts.indexWhere((c) => c.address == e);
                 if (friendIndex >= 0) {
                   return widget.service.keyring.contacts[friendIndex];
                 }
@@ -196,15 +179,12 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
             _activeRecoveries.asMap().forEach((i, v) {
               // status is null if recovery process was closed
               if (_activeRecoveriesStatus[i] != null) {
-                activeList
-                    .add([v, _activeRecoveriesStatus[i], _proxyStatus[i]]);
+                activeList.add([v, _activeRecoveriesStatus[i], _proxyStatus[i]]);
               }
             });
 
-            final blockDuration = int.parse(widget
-                .service.plugin.networkConst['babe']['expectedBlockTime']);
-            final String delay =
-                Fmt.blockToTime(info.delayPeriod, blockDuration);
+            final blockDuration = int.parse(widget.service.plugin.networkConst['babe']['expectedBlockTime']);
+            final String delay = Fmt.blockToTime(info.delayPeriod, blockDuration);
             return Column(
               children: [
                 Expanded(
@@ -241,9 +221,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
                             child: Column(
                               children: activeList.length > 0
                                   ? activeList.map((e) {
-                                      String start = Fmt.blockToTime(
-                                          _currentBlock - e[1]['created'],
-                                          blockDuration);
+                                      String start = Fmt.blockToTime(_currentBlock - e[1]['created'], blockDuration);
                                       TxData tx = e[0];
                                       bool hasProxy = false;
                                       if (e[2] != null) {
@@ -256,8 +234,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
                                         start: start,
                                         delay: delay,
                                         proxy: hasProxy,
-                                        networkState:
-                                            widget.service.plugin.networkState,
+                                        networkState: widget.service.plugin.networkState,
                                         action: CupertinoActionSheetAction(
                                           child: Text(dic['recovery.close']),
                                           onPressed: () {
@@ -270,9 +247,7 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
                                   : [
                                       Padding(
                                         padding: EdgeInsets.all(16),
-                                        child: Text(I18n.of(context).getDic(
-                                            i18n_full_dic_ui,
-                                            'common')['list.empty']),
+                                        child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['list.empty']),
                                       )
                                     ],
                             ))
@@ -401,9 +376,7 @@ class RecoveryFriendList extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Visibility(
-                      visible: e.name != null && e.name.isNotEmpty,
-                      child: Text(e.name ?? "")),
+                  Visibility(visible: e.name != null && e.name.isNotEmpty, child: Text(e.name ?? "")),
                   Text(
                     Fmt.address(e.address),
                     style: TextStyle(
@@ -451,15 +424,12 @@ class ActiveRecovery extends StatelessWidget {
         actions: [
           action,
           CupertinoActionSheetAction(
-            child: Text(
-                I18n.of(context).getDic(i18n_full_dic_app, 'assets')['detail']),
-            onPressed: () => Navigator.of(context)
-                .popAndPushNamed(TxDetailPage.route, arguments: tx),
+            child: Text(I18n.of(context).getDic(i18n_full_dic_app, 'assets')['detail']),
+            onPressed: () => Navigator.of(context).popAndPushNamed(TxDetailPage.route, arguments: tx),
           )
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text(
-              I18n.of(context).getDic(i18n_full_dic_ui, 'common')['cancel']),
+          child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['cancel']),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -471,8 +441,7 @@ class ActiveRecovery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dic = I18n.of(context).getDic(i18n_full_dic_app, 'profile');
-    String frindsVouched =
-        List.of(status['friends']).map((e) => Fmt.address(e)).join('\n');
+    String frindsVouched = List.of(status['friends']).map((e) => Fmt.address(e)).join('\n');
     return RoundedCard(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
@@ -550,8 +519,7 @@ class ActiveRecovery extends StatelessWidget {
                             color: Theme.of(context).disabledColor,
                             size: 16,
                           ),
-                          message:
-                              '\n${dic['recovery.friends.vouched']}\n$frindsVouched\n',
+                          message: '\n${dic['recovery.friends.vouched']}\n$frindsVouched\n',
                         )
                       ],
                     ),

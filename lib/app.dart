@@ -109,8 +109,7 @@ class WalletApp extends StatefulWidget {
 
   static Future<void> checkUpdate(BuildContext context) async {
     final versions = await WalletApi.getLatestVersion();
-    AppUI.checkUpdate(context, versions, WalletApp.buildTarget,
-        autoCheck: true);
+    AppUI.checkUpdate(context, versions, WalletApp.buildTarget, autoCheck: true);
   }
 
   @override
@@ -143,16 +142,14 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       toggleableActiveColor: Color(0xFF768FE1),
       errorColor: Color(0xFFE46B41),
       unselectedWidgetColor: Color(0xFF858380),
-      textSelectionTheme:
-          TextSelectionThemeData(selectionColor: Color(0xFF565554)),
+      textSelectionTheme: TextSelectionThemeData(selectionColor: Color(0xFF565554)),
       appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFFF5F3F0),
           elevation: 0,
           titleTextStyle: TextStyle(
               color: Color(0xFF565554),
               fontSize: UI.getTextSize(18, context, locale: _locale),
-              fontFamily:
-                  UI.getFontFamily('TitilliumWeb', context, locale: _locale),
+              fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale),
               fontWeight: FontWeight.w600)),
       primarySwatch: color,
       hoverColor: secondaryColor,
@@ -162,8 +159,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
               fontSize: UI.getTextSize(30, context, locale: _locale),
               fontWeight: FontWeight.w600,
               color: Color(0xFF565554),
-              fontFamily:
-                  UI.getFontFamily('TitilliumWeb', context, locale: _locale)),
+              fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale)),
           headline2: TextStyle(
             fontSize: UI.getTextSize(22, context, locale: _locale),
           ),
@@ -171,20 +167,17 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
               fontSize: UI.getTextSize(20, context, locale: _locale),
               fontWeight: FontWeight.w600,
               color: Color(0xFF565554),
-              fontFamily:
-                  UI.getFontFamily('TitilliumWeb', context, locale: _locale)),
+              fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale)),
           headline4: TextStyle(
             color: Color(0xFF565554),
             fontSize: UI.getTextSize(16, context, locale: _locale),
-            fontFamily:
-                UI.getFontFamily('TitilliumWeb', context, locale: _locale),
+            fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale),
             fontWeight: FontWeight.w400,
           ),
           headline5: TextStyle(
             color: Color(0xFF565554),
             fontSize: UI.getTextSize(14, context, locale: _locale),
-            fontFamily:
-                UI.getFontFamily('TitilliumWeb', context, locale: _locale),
+            fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale),
             fontWeight: FontWeight.w400,
           ),
           headline6: TextStyle(
@@ -206,14 +199,12 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           caption: TextStyle(
               fontSize: UI.getTextSize(12, context, locale: _locale),
               fontWeight: FontWeight.w600,
-              fontFamily:
-                  UI.getFontFamily('TitilliumWeb', context, locale: _locale)),
+              fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale)),
           button: TextStyle(
               fontSize: UI.getTextSize(18, context, locale: _locale),
               fontWeight: FontWeight.w600,
               color: Colors.white,
-              fontFamily:
-                  UI.getFontFamily('TitilliumWeb', context, locale: _locale))),
+              fontFamily: UI.getFontFamily('TitilliumWeb', context, locale: _locale))),
     );
   }
 
@@ -258,13 +249,11 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   }
 
   Future<void> _handleWCPairing(WCPairingData pairingReq) async {
-    final approved = await Navigator.of(context)
-        .pushNamed(WCPairingConfirmPage.route, arguments: pairingReq);
+    final approved = await Navigator.of(context).pushNamed(WCPairingConfirmPage.route, arguments: pairingReq);
     final address = _service.keyring.current.address;
     if (approved ?? false) {
       _service.store.account.setWCPairing(true);
-      await _service.plugin.sdk.api.walletConnect
-          .approvePairing(pairingReq, '$address@polkadot:acalatc5');
+      await _service.plugin.sdk.api.walletConnect.approvePairing(pairingReq, '$address@polkadot:acalatc5');
       print('wallet connect alive');
     } else {
       _service.plugin.sdk.api.walletConnect.rejectPairing(pairingReq);
@@ -272,12 +261,10 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   }
 
   Future<void> _handleWCPayload(WCPayloadData payload) async {
-    final res = await Navigator.of(context)
-        .pushNamed(WalletConnectSignPage.route, arguments: payload);
+    final res = await Navigator.of(context).pushNamed(WalletConnectSignPage.route, arguments: payload);
     if (res == null) {
       print('user rejected signing');
-      await _service.plugin.sdk.api.walletConnect
-          .payloadRespond(payload, error: {
+      await _service.plugin.sdk.api.walletConnect.payloadRespond(payload, error: {
         'code': -32000,
         'message': "User rejected JSON-RPC request",
       });
@@ -296,8 +283,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       _connectedNode = null;
     });
 
-    final connected = await service.plugin.start(_keyring,
-        nodes: node != null ? [node] : service.plugin.nodeList);
+    // plugin start connects the api
+
+    final connected = await service.plugin.start(_keyring, nodes: node != null ? [node] : service.plugin.nodeList);
     setState(() {
       _connectedNode = connected;
     });
@@ -305,8 +293,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     _dropsService(service, node: node);
   }
 
-  Future<void> _restartWebConnect(AppService service,
-      {NetworkParams node}) async {
+  Future<void> _restartWebConnect(AppService service, {NetworkParams node}) async {
     setState(() {
       _connectedNode = null;
     });
@@ -328,8 +315,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     //       : null,
     // );
 
-    final connected = await service.plugin.start(_keyring,
-        nodes: node != null ? [node] : service.plugin.nodeList);
+    final connected = await service.plugin.start(_keyring, nodes: node != null ? [node] : service.plugin.nodeList);
     setState(() {
       _connectedNode = connected;
     });
@@ -340,10 +326,28 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Timer _webViewDropsTimer;
   Timer _dropsServiceTimer;
   Timer _chainTimer;
+  // implementation of a reconnect service.
+  // with three timers.
+  // wot.
   _dropsService(AppService service, {NetworkParams node}) {
+    // every time this is called, all timers are canceled.
     _dropsServiceCancel();
+
     _dropsServiceTimer = Timer(Duration(seconds: 24), () async {
+      // after 24 seconds we create an 18 second timeout to reconnect, then make
+      // a chain call.
+      // if the chain call succeeds within 18 seconds, it cancels all timers and
+      // starts over.
+      // if the timer hits before the chain call succeeds, or the chain call fails,
+      // then 18 seconds later we call _restartWebConnect.
+
       _chainTimer = Timer(Duration(seconds: 18), () async {
+        // if this succeeds within 60 seconds, we're reconnected.
+        // if it fails or does not return in 60 seconds, we cancel all timers
+        // and start over.
+        // That's a little odd.
+        // Note: I am pretty sure this code has many bugs and race conditions.
+
         _restartWebConnect(service, node: node);
         _webViewDropsTimer = Timer(Duration(seconds: 60), () {
           _dropsService(service, node: node);
@@ -361,8 +365,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     _webViewDropsTimer?.cancel();
   }
 
-  Future<void> _changeNetwork(PolkawalletPlugin network,
-      {NetworkParams node}) async {
+  Future<void> _changeNetwork(PolkawalletPlugin network, {NetworkParams node}) async {
     _dropsServiceCancel();
     setState(() {
       _connectedNode = null;
@@ -393,9 +396,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     // we reuse the existing webView instance when we start a new plugin.
     await network.beforeStart(_keyring,
         webView: _service?.plugin?.sdk?.webView,
-        jsCode: useLocalJS
-            ? WalletApi.getPolkadotJSCode(_store.storage, network.basic.name)
-            : null, socketDisconnectedAction: () {
+        jsCode: useLocalJS ? WalletApi.getPolkadotJSCode(_store.storage, network.basic.name) : null,
+        socketDisconnectedAction: () {
       UI.throttle(() {
         _dropsServiceCancel();
         _restartWebConnect(service, node: node);
@@ -409,8 +411,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     _startPlugin(service, node: node);
   }
 
-  Future<void> _switchNetwork(String networkName,
-      {NetworkParams node, PageRouteParams pageRoute}) async {
+  Future<void> _switchNetwork(String networkName, {NetworkParams node, PageRouteParams pageRoute}) async {
     final isNetworkChanged = networkName != _service.plugin.basic.name;
 
     if (isNetworkChanged) {
@@ -428,18 +429,15 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
               actions: [
                 CupertinoButton(
                   child: Text(
-                    I18n.of(context)
-                        .getDic(i18n_full_dic_ui, 'common')['cancel'],
-                    style: TextStyle(
-                        color: Theme.of(context).unselectedWidgetColor),
+                    I18n.of(context).getDic(i18n_full_dic_ui, 'common')['cancel'],
+                    style: TextStyle(color: Theme.of(context).unselectedWidgetColor),
                   ),
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
                 CupertinoButton(
                   child: Text(
                     I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok'],
-                    style: TextStyle(
-                        color: Theme.of(context).toggleableActiveColor),
+                    style: TextStyle(color: Theme.of(context).toggleableActiveColor),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                 ),
@@ -452,8 +450,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       showCupertinoDialog(
           context: _homePageContext,
           builder: (_) {
-            final dic =
-                I18n.of(_homePageContext).getDic(i18n_full_dic_app, 'assets');
+            final dic = I18n.of(_homePageContext).getDic(i18n_full_dic_app, 'assets');
             return CupertinoAlertDialog(
               title: Text(dic['v3.changeNetwork']),
               content: Container(
@@ -465,8 +462,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                       margin: EdgeInsets.only(right: 8),
                       child: CupertinoActivityIndicator(),
                     ),
-                    Text(
-                        '${dic['v3.changeNetwork.ing']} ${networkName.toUpperCase()}...')
+                    Text('${dic['v3.changeNetwork.ing']} ${networkName.toUpperCase()}...')
                   ],
                 ),
               ),
@@ -474,9 +470,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           });
     }
 
-    await _changeNetwork(
-        widget.plugins.firstWhere((e) => e.basic.name == networkName),
-        node: node);
+    await _changeNetwork(widget.plugins.firstWhere((e) => e.basic.name == networkName), node: node);
     await _service.store.assets.loadCache(_keyring.current, networkName);
 
     if (isNetworkChanged) {
@@ -503,20 +497,17 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Future<void> _checkBadAddressAndWarn(BuildContext context) async {
     if (_keyring != null &&
         _keyring.current != null &&
-        _keyring.current.pubKey ==
-            '0xda99a528d2cbe6b908408c4f887d2d0336394414a9edb474c33a690a4202341a') {
+        _keyring.current.pubKey == '0xda99a528d2cbe6b908408c4f887d2d0336394414a9edb474c33a690a4202341a') {
       final Map dic = I18n.of(context).getDic(i18n_full_dic_app, 'account');
       showCupertinoDialog(
           context: context,
           builder: (_) {
             return CupertinoAlertDialog(
               title: Text(dic['bad.warn']),
-              content: Text(
-                  '${Fmt.address(_keyring.current.address)} ${dic['bad.warn.info']}'),
+              content: Text('${Fmt.address(_keyring.current.address)} ${dic['bad.warn.info']}'),
               actions: [
                 CupertinoButton(
-                  child: Text(I18n.of(context)
-                      .getDic(i18n_full_dic_ui, 'common')['ok']),
+                  child: Text(I18n.of(context).getDic(i18n_full_dic_ui, 'common')['ok']),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -525,9 +516,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _checkJSCodeUpdate(
-      BuildContext context, PolkawalletPlugin plugin,
-      {bool needReload = true}) async {
+  Future<void> _checkJSCodeUpdate(BuildContext context, PolkawalletPlugin plugin, {bool needReload = true}) async {
     _checkBadAddressAndWarn(context);
     // check js code update
     final jsVersions = await WalletApi.fetchPolkadotJSVersion();
@@ -542,22 +531,29 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       plugin.basic.jsCodeVersion,
     );
     print('js update: $network $currentVersion $version $versionMin');
-    final bool needUpdate = await AppUI.checkJSCodeUpdate(
-        context, _store.storage, currentVersion, version, versionMin, network);
+    final bool needUpdate =
+        await AppUI.checkJSCodeUpdate(context, _store.storage, currentVersion, version, versionMin, network);
     if (needUpdate) {
-      final res =
-          await AppUI.updateJSCode(context, _store.storage, network, version);
+      final res = await AppUI.updateJSCode(context, _store.storage, network, version);
       if (needReload && res) {
         _changeNetwork(plugin);
       }
     }
   }
 
+  // _startApp
+  // _startPlugin
+
   Future<int> _startApp(BuildContext context) async {
     if (_keyring == null) {
       _keyring = Keyring();
-      await _keyring
-          .init(widget.plugins.map((e) => e.basic.ss58).toSet().toList());
+
+// initialize the keyring with "ss58" account types - ss58 variable here is an integer denoting the
+// account type, for example "42" for a generic account type.
+// We init the keyring class with account types here. It's converted to set to make the types unique.
+// we don't need this, we only have one account type, 42.
+
+      await _keyring.init(widget.plugins.map((e) => e.basic.ss58).toSet().toList());
 
       final storage = GetStorage(get_storage_container);
       final store = AppStore(storage);
@@ -565,22 +561,24 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
       // await _showGuide(context, storage);
 
-      final pluginIndex = widget.plugins
-          .indexWhere((e) => e.basic.name == store.settings.network);
-      final service = AppService(widget.plugins,
-          widget.plugins[pluginIndex > -1 ? pluginIndex : 0], _keyring, store);
+      final pluginIndex = widget.plugins.indexWhere((e) => e.basic.name == store.settings.network);
+
+      // service.init - doesn't do much
+      final service = AppService(widget.plugins, widget.plugins[pluginIndex > -1 ? pluginIndex : 0], _keyring, store);
       service.init();
       setState(() {
         _store = store;
         _service = service;
       });
 
+// Locale stuff - not needed
       if (store.settings.localeCode.isNotEmpty) {
         _changeLang(store.settings.localeCode);
       } else {
         _changeLang(Localizations.localeOf(context).toString());
       }
 
+// this has to do with app version, plugin JS version, and hot updates of JS - not needed!
       final useLocalJS = WalletApi.getPolkadotJSVersion(
             _store.storage,
             service.plugin.basic.name,
@@ -589,20 +587,20 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           service.plugin.basic.jsCodeVersion;
 
       await service.plugin.beforeStart(_keyring,
-          jsCode: useLocalJS
-              ? WalletApi.getPolkadotJSCode(
-                  _store.storage, service.plugin.basic.name)
-              : null, socketDisconnectedAction: () {
+          jsCode: useLocalJS ? WalletApi.getPolkadotJSCode(_store.storage, service.plugin.basic.name) : null,
+          socketDisconnectedAction: () {
         UI.throttle(() {
           _dropsServiceCancel();
           _restartWebConnect(service);
         });
       });
 
+// loading keyrings from storage - we should not need this
       if (_keyring.keyPairs.length > 0) {
         _store.assets.loadCache(_keyring.current, _service.plugin.basic.name);
       }
 
+// payload - we need this
       _startPlugin(service);
 
       WalletApi.getTokenStakingConfig().then((value) {
@@ -614,9 +612,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   }
 
   Map<String, Widget Function(BuildContext)> _getRoutes() {
-    final pluginPages = _service != null && _service.plugin != null
-        ? _service.plugin.getRoutes(_keyring)
-        : {};
+    final pluginPages = _service != null && _service.plugin != null ? _service.plugin.getRoutes(_keyring) : {};
     return {
       /// pages of plugin
       ...pluginPages,
@@ -630,8 +626,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       HomePage.route: (_) => WillPopScopWrapper(
             Observer(
               builder: (BuildContext context) {
-                final accountCreated =
-                    _service?.store?.account?.accountCreated ?? false;
+                final accountCreated = _service?.store?.account?.accountCreated ?? false;
 
                 _homePageContext = context;
 
@@ -641,14 +636,13 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                     if (snapshot.hasData && _service != null) {
                       if (WalletApp.isInitial == 1) {
                         WalletApp.isInitial++;
-                        _checkJSCodeUpdate(context, _service.plugin,
-                            needReload: false);
+                        _checkJSCodeUpdate(context, _service.plugin, needReload: false);
                         WalletApp.checkUpdate(context);
                         _queryPluginsConfig();
                       }
                       return snapshot.data > 0
-                          ? HomePage(_service, widget.plugins, _connectedNode,
-                              _checkJSCodeUpdate, _switchNetwork, _changeNode)
+                          ? HomePage(
+                              _service, widget.plugins, _connectedNode, _checkJSCodeUpdate, _switchNetwork, _changeNode)
                           : CreateAccountEntryPage(_service.plugin);
                     } else {
                       return Container(color: Theme.of(context).hoverColor);
@@ -662,33 +656,28 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
             _service.plugin,
             _keyring,
             _service.account.getPassword,
-            txDisabledCalls: _service.store.settings
-                .getDisabledCalls(_service.plugin.basic.name),
+            txDisabledCalls: _service.store.settings.getDisabledCalls(_service.plugin.basic.name),
           ),
-      WalletExtensionSignPage.route: (_) => WalletExtensionSignPage(
-          _service.plugin, _keyring, _service.account.getPassword),
+      WalletExtensionSignPage.route: (_) =>
+          WalletExtensionSignPage(_service.plugin, _keyring, _service.account.getPassword),
       QrSenderPage.route: (_) => QrSenderPage(_service.plugin, _keyring),
       QrSignerPage.route: (_) => QrSignerPage(_service.plugin, _keyring),
       ScanPage.route: (_) => ScanPage(_service.plugin, _keyring),
       AccountListPage.route: (_) => AccountListPage(_service.plugin, _keyring),
-      PluginAccountListPage.route: (_) =>
-          PluginAccountListPage(_service.plugin, _keyring),
-      AccountQrCodePage.route: (_) =>
-          AccountQrCodePage(_service.plugin, _keyring),
-      NetworkSelectPage.route: (_) => NetworkSelectPage(
-          _service, widget.plugins, widget.disabledPlugins, _changeNetwork),
+      PluginAccountListPage.route: (_) => PluginAccountListPage(_service.plugin, _keyring),
+      AccountQrCodePage.route: (_) => AccountQrCodePage(_service.plugin, _keyring),
+      NetworkSelectPage.route: (_) =>
+          NetworkSelectPage(_service, widget.plugins, widget.disabledPlugins, _changeNetwork),
       WCPairingConfirmPage.route: (_) => WCPairingConfirmPage(_service),
       WCSessionsPage.route: (_) => WCSessionsPage(_service),
-      WalletConnectSignPage.route: (_) =>
-          WalletConnectSignPage(_service, _service.account.getPassword),
+      WalletConnectSignPage.route: (_) => WalletConnectSignPage(_service, _service.account.getPassword),
       GuidePage.route: (_) => GuidePage(),
       AcalaBridgePage.route: (_) => AcalaBridgePage(),
       StakingKSMGuide.route: (_) => StakingKSMGuide(_service),
       StakingDOTGuide.route: (_) => StakingDOTGuide(_service),
 
       /// account
-      CreateAccountEntryPage.route: (_) =>
-          CreateAccountEntryPage(_service.plugin),
+      CreateAccountEntryPage.route: (_) => CreateAccountEntryPage(_service.plugin),
       CreateAccountPage.route: (_) => CreateAccountPage(_service),
       BackupAccountPage.route: (_) => BackupAccountPage(_service),
       DAppWrapperPage.route: (_) => DAppWrapperPage(
@@ -699,12 +688,10 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
             updateAuth: _store.settings.updateDAppAuth,
           ),
       SelectImportTypePage.route: (_) => SelectImportTypePage(_service),
-      ImportAccountFormMnemonic.route: (_) =>
-          ImportAccountFormMnemonic(_service),
+      ImportAccountFormMnemonic.route: (_) => ImportAccountFormMnemonic(_service),
       ImportAccountFromRawSeed.route: (_) => ImportAccountFromRawSeed(_service),
       ImportAccountFromRawSeed.route: (_) => ImportAccountFromRawSeed(_service),
-      ImportAccountFormKeyStore.route: (_) =>
-          ImportAccountFormKeyStore(_service),
+      ImportAccountFormKeyStore.route: (_) => ImportAccountFormKeyStore(_service),
       ImportAccountCreatePage.route: (_) => ImportAccountCreatePage(_service),
 
       /// assets
@@ -728,10 +715,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       ChangePasswordPage.route: (_) => ChangePasswordPage(_service),
       ExportAccountPage.route: (_) => ExportAccountPage(_service),
       ExportResultPage.route: (_) => ExportResultPage(),
-      SettingsPage.route: (_) =>
-          SettingsPage(_service, _changeLang, _changeNode),
-      RemoteNodeListPage.route: (_) =>
-          RemoteNodeListPage(_service, _changeNode),
+      SettingsPage.route: (_) => SettingsPage(_service, _changeLang, _changeNode),
+      RemoteNodeListPage.route: (_) => RemoteNodeListPage(_service, _changeNode),
       CreateRecoveryPage.route: (_) => CreateRecoveryPage(_service),
       FriendListPage.route: (_) => FriendListPage(_service),
       RecoverySettingPage.route: (_) => RecoverySettingPage(_service),
@@ -771,15 +756,13 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           if (element.split("=")[0] == "network") {
             network = Uri.decodeComponent(element.split("=")[1]);
           } else {
-            args[element.split("=")[0]] =
-                Uri.decodeComponent(element.split("=")[1]);
+            args[element.split("=")[0]] = Uri.decodeComponent(element.split("=")[1]);
           }
         });
       }
 
       if (network != _service.plugin.basic.name) {
-        _switchNetwork(network,
-            pageRoute: PageRouteParams(pathDatas[0], args: args));
+        _switchNetwork(network, pageRoute: PageRouteParams(pathDatas[0], args: args));
       } else {
         _autoRoutingParams = PageRouteParams(pathDatas[0], args: args);
         WidgetsBinding.instance.addPostFrameCallback((_) => _doAutoRouting());
@@ -830,8 +813,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   void _setupPluginsNetworkSwitch() {
     widget.plugins.forEach((e) {
       if (e.appUtils.switchNetwork == null) {
-        e.appUtils.switchNetwork =
-            (String network, {PageRouteParams pageRoute}) async {
+        e.appUtils.switchNetwork = (String network, {PageRouteParams pageRoute}) async {
           _switchNetwork(network, pageRoute: pageRoute);
         };
       }
@@ -841,8 +823,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   void _doAutoRouting() {
     if (_autoRoutingParams != null) {
       print('page auto routing...');
-      Navigator.of(_homePageContext).pushNamed(_autoRoutingParams.path,
-          arguments: _autoRoutingParams.args);
+      Navigator.of(_homePageContext).pushNamed(_autoRoutingParams.path, arguments: _autoRoutingParams.args);
       _autoRoutingParams = null;
     }
   }
@@ -901,10 +882,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           builder: (_, __) => MaterialApp(
                 title: 'Polkawallet',
                 builder: (context, widget) {
-                  return MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                      child: widget);
+                  return MediaQuery(data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0), child: widget);
                 },
                 theme: _theme ??
                     _getAppTheme(
@@ -923,11 +901,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                   const Locale('zh', ''),
                 ],
                 initialRoute: StartPage.route,
-                onGenerateRoute: (settings) => CupertinoPageRoute(
-                    builder: routes[settings.name], settings: settings),
-                navigatorObservers: [
-                  FirebaseAnalyticsObserver(analytics: _analytics)
-                ],
+                onGenerateRoute: (settings) => CupertinoPageRoute(builder: routes[settings.name], settings: settings),
+                navigatorObservers: [FirebaseAnalyticsObserver(analytics: _analytics)],
               )),
     );
   }
