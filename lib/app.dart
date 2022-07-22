@@ -234,47 +234,47 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     });
   }
 
-  void _initWalletConnect() {
-    _service.plugin.sdk.api.walletConnect.initClient((WCPairingData proposal) {
-      print('get wc pairing');
-      _handleWCPairing(proposal);
-    }, (WCPairedData session) {
-      print('get wc session');
-      _service.store.account.createWCSession(session);
-      _service.store.account.setWCPairing(false);
-    }, (WCPayloadData payload) {
-      print('get wc payload');
-      _handleWCPayload(payload);
-    });
-  }
+  // void _initWalletConnect() {
+  //   _service.plugin.sdk.api.walletConnect.initClient((WCPairingData proposal) {
+  //     print('get wc pairing');
+  //     _handleWCPairing(proposal);
+  //   }, (WCPairedData session) {
+  //     print('get wc session');
+  //     _service.store.account.createWCSession(session);
+  //     _service.store.account.setWCPairing(false);
+  //   }, (WCPayloadData payload) {
+  //     print('get wc payload');
+  //     _handleWCPayload(payload);
+  //   });
+  // }
 
-  Future<void> _handleWCPairing(WCPairingData pairingReq) async {
-    final approved = await Navigator.of(context).pushNamed(WCPairingConfirmPage.route, arguments: pairingReq);
-    final address = _service.keyring.current.address;
-    if (approved ?? false) {
-      _service.store.account.setWCPairing(true);
-      await _service.plugin.sdk.api.walletConnect.approvePairing(pairingReq, '$address@polkadot:acalatc5');
-      print('wallet connect alive');
-    } else {
-      _service.plugin.sdk.api.walletConnect.rejectPairing(pairingReq);
-    }
-  }
+  // Future<void> _handleWCPairing(WCPairingData pairingReq) async {
+  //   final approved = await Navigator.of(context).pushNamed(WCPairingConfirmPage.route, arguments: pairingReq);
+  //   final address = _service.keyring.current.address;
+  //   if (approved ?? false) {
+  //     _service.store.account.setWCPairing(true);
+  //     await _service.plugin.sdk.api.walletConnect.approvePairing(pairingReq, '$address@polkadot:acalatc5');
+  //     print('wallet connect alive');
+  //   } else {
+  //     _service.plugin.sdk.api.walletConnect.rejectPairing(pairingReq);
+  //   }
+  // }
 
-  Future<void> _handleWCPayload(WCPayloadData payload) async {
-    final res = await Navigator.of(context).pushNamed(WalletConnectSignPage.route, arguments: payload);
-    if (res == null) {
-      print('user rejected signing');
-      await _service.plugin.sdk.api.walletConnect.payloadRespond(payload, error: {
-        'code': -32000,
-        'message': "User rejected JSON-RPC request",
-      });
-    } else {
-      print('user signed payload:');
-      print(res);
-      // await _service.plugin.sdk.api.walletConnect
-      //     .payloadRespond(payload, response: );
-    }
-  }
+  // Future<void> _handleWCPayload(WCPayloadData payload) async {
+  //   final res = await Navigator.of(context).pushNamed(WalletConnectSignPage.route, arguments: payload);
+  //   if (res == null) {
+  //     print('user rejected signing');
+  //     await _service.plugin.sdk.api.walletConnect.payloadRespond(payload, error: {
+  //       'code': -32000,
+  //       'message': "User rejected JSON-RPC request",
+  //     });
+  //   } else {
+  //     print('user signed payload:');
+  //     print(res);
+  //     // await _service.plugin.sdk.api.walletConnect
+  //     //     .payloadRespond(payload, response: );
+  //   }
+  // }
 
   Future<void> _startPlugin(AppService service, {NetworkParams node}) async {
     // _initWalletConnect();
@@ -285,15 +285,20 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
     // plugin start connects the api
 
+    final nodes = node != null ? [node] : service.plugin.nodeList;
+    print("_startPlugin starting plugin $_keyring, node param $node - nodes list:  $nodes");
+
     final connected = await service.plugin.start(_keyring, nodes: node != null ? [node] : service.plugin.nodeList);
     setState(() {
       _connectedNode = connected;
     });
+    print("_startPlugin connected $connected");
 
     _dropsService(service, node: node);
   }
 
   Future<void> _restartWebConnect(AppService service, {NetworkParams node}) async {
+    print("_restartWebConnect called");
     setState(() {
       _connectedNode = null;
     });
@@ -553,6 +558,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 // We init the keyring class with account types here. It's converted to set to make the types unique.
 // we don't need this, we only have one account type, 42.
 
+      final ss58List = widget.plugins.map((e) => e.basic.ss58).toSet().toList();
+      print("ss58 list: $ss58List");
       await _keyring.init(widget.plugins.map((e) => e.basic.ss58).toSet().toList());
 
       final storage = GetStorage(get_storage_container);
@@ -563,9 +570,12 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
       final pluginIndex = widget.plugins.indexWhere((e) => e.basic.name == store.settings.network);
 
+      print("starting with plugin: index $pluginIndex");
+
       // service.init - doesn't do much
       final service = AppService(widget.plugins, widget.plugins[pluginIndex > -1 ? pluginIndex : 0], _keyring, store);
       service.init();
+      print("service init done");
       setState(() {
         _store = store;
         _service = service;
@@ -586,9 +596,15 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           ) >
           service.plugin.basic.jsCodeVersion;
 
+      print("useLocalJS $useLocalJS");
+
+      final jsCodeParam = useLocalJS ? WalletApi.getPolkadotJSCode(_store.storage, service.plugin.basic.name) : null;
+      print("calling beforeStart with $_keyring, $jsCodeParam");
+
       await service.plugin.beforeStart(_keyring,
           jsCode: useLocalJS ? WalletApi.getPolkadotJSCode(_store.storage, service.plugin.basic.name) : null,
           socketDisconnectedAction: () {
+        print("socket disconnect action called");
         UI.throttle(() {
           _dropsServiceCancel();
           _restartWebConnect(service);
@@ -597,10 +613,12 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
 // loading keyrings from storage - we should not need this
       if (_keyring.keyPairs.length > 0) {
+        print("loading keyrings ...");
         _store.assets.loadCache(_keyring.current, _service.plugin.basic.name);
       }
 
 // payload - we need this
+      print("starting plugin");
       _startPlugin(service);
 
       WalletApi.getTokenStakingConfig().then((value) {
